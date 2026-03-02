@@ -3,15 +3,15 @@
 // falling back to /placeholder/cars and /placeholder/characters if needed.
 
 const carUrls = {
-  ...(import.meta.glob('/cars/*.glb', { as: 'url', eager: true })),
-  ...(import.meta.glob('/placeholder/cars/*.glb', { as: 'url', eager: true })),
+  ...(import.meta.glob('/cars/*.glb', { eager: true, query: '?url', import: 'default' })),
+  ...(import.meta.glob('/placeholder/cars/*.glb', { eager: true, query: '?url', import: 'default' })),
 };
 
 const charUrls = {
-  ...(import.meta.glob('/characters/*.glb', { as: 'url', eager: true })),
-  ...(import.meta.glob('/charaters/*.glb', { as: 'url', eager: true })),
-  ...(import.meta.glob('/placeholder/characters/*.glb', { as: 'url', eager: true })),
-  ...(import.meta.glob('/placeholder/charaters/*.glb', { as: 'url', eager: true })),
+  ...(import.meta.glob('/characters/*.glb', { eager: true, query: '?url', import: 'default' })),
+  ...(import.meta.glob('/charaters/*.glb', { eager: true, query: '?url', import: 'default' })),
+  ...(import.meta.glob('/placeholder/characters/*.glb', { eager: true, query: '?url', import: 'default' })),
+  ...(import.meta.glob('/placeholder/charaters/*.glb', { eager: true, query: '?url', import: 'default' })),
 };
 
 function basename(p) {

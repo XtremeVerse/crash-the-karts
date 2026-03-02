@@ -139,7 +139,7 @@ export class UI {
         if (bodyRow) bodyRow.innerHTML = '';
         if (rimRow) rimRow.innerHTML = '';
         // Discover cars and characters dynamically from placeholder folders
-        import('../assetsIndex.js').then(mod => {
+        import('./assetsIndex.js').then(mod => {
             const cars = mod.listCarNames();
             const chars = mod.listCharacterNames();
             cars.forEach(c => {
