@@ -1,0 +1,148 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Crash the Karts</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <div id="game-container"></div>
+
+    <!-- UI Overlay -->
+    <div id="ui-layer">
+        <!-- Landing Page -->
+        <div id="landing-page" class="menu-page">
+            <h1 class="game-logo">CRASH THE KARTS</h1>
+            <div class="menu-buttons">
+                <button id="btn-play">PLAY</button>
+                <button id="btn-garage">GARAGE</button>
+                <button id="btn-shop">SHOP</button>
+                <button id="btn-settings">SETTINGS</button>
+            </div>
+        </div>
+
+        <!-- Mode Selection Page -->
+        <div id="mode-selection-page" class="menu-page hidden">
+            <h2>SELECT MODE</h2>
+            <div class="menu-buttons">
+                <button id="btn-mode-quick">QUICK BATTLE (1vs2)</button>
+                <button id="btn-mode-hard">HARD BATTLE (1vs3)</button>
+                <button id="btn-mode-free">FREE DRIVE</button>
+                <button class="btn-back">BACK</button>
+            </div>
+        </div>
+
+        <!-- Garage Page -->
+        <div id="garage-page" class="menu-page hidden">
+            <h2>GARAGE</h2>
+            <div class="garage-content">
+                <div class="kart-preview-container">
+                    <div id="garage-preview-canvas"></div>
+                </div>
+                <div class="garage-stats">
+                    <h3>CHARACTER</h3>
+                    <div id="character-selector" class="selector-row"></div>
+                    <h3>CAR</h3>
+                    <div id="car-selector" class="selector-row"></div>
+                    <h3>COLORS</h3>
+                    <div class="selector-row">
+                        <div>Body:</div>
+                        <div id="body-color-selector" class="color-row"></div>
+                    </div>
+                    <div class="selector-row">
+                        <div>Rims:</div>
+                        <div id="rim-color-selector" class="color-row"></div>
+                    </div>
+                    <div class="selector-row">
+                        <label><input type="checkbox" id="neon-toggle"> Neon Glow</label>
+                    </div>
+                    <div id="stats-display">
+                        <p>Speed: <span id="stat-speed">0</span></p>
+                        <p>Acceleration: <span id="stat-accel">0</span></p>
+                        <p>Handling: <span id="stat-handling">0</span></p>
+                        <p>Health: <span id="stat-health">0</span></p>
+                    </div>
+                    <button id="btn-unlock-car" class="hidden">Unlock Car</button>
+                </div>
+            </div>
+            <button class="btn-back">BACK</button>
+        </div>
+
+        <!-- Shop Page -->
+        <div id="shop-page" class="menu-page hidden">
+            <h2>SHOP</h2>
+            <div class="shop-content">
+                <div class="coin-balance">Coins: <span id="coin-count">0</span></div>
+                <div class="shop-items">
+                    <div class="shop-item" data-id="hp_boost">
+                        <span>Health Boost (+15%)</span>
+                        <button class="btn-buy" data-price="200">200 Coins</button>
+                    </div>
+                    <div class="shop-item" data-id="speed_boost">
+                        <span>Speed Boost (+15%)</span>
+                        <button class="btn-buy" data-price="300">300 Coins</button>
+                    </div>
+                </div>
+            </div>
+            <button class="btn-back">BACK</button>
+        </div>
+
+        <!-- Settings Page -->
+        <div id="settings-page" class="menu-page hidden">
+            <h2>SETTINGS</h2>
+            <div class="settings-content">
+                <div class="setting-row">
+                    <label>Master Volume</label>
+                    <input type="range" id="volume-slider" min="0" max="1" step="0.1" value="0.5">
+                </div>
+                <div class="setting-row">
+                    <label>Music</label>
+                    <input type="checkbox" id="music-toggle" checked>
+                </div>
+                <div class="setting-row">
+                    <label>Graphics Quality</label>
+                    <select id="graphics-quality">
+                        <option value="low">Low</option>
+                        <option value="medium" selected>Medium</option>
+                        <option value="high">High</option>
+                    </select>
+                </div>
+            </div>
+            <button class="btn-back">BACK</button>
+        </div>
+
+        <!-- Gameplay HUD -->
+        <div id="game-hud" class="hidden">
+            <div class="hud-top">
+                <div class="timer">Time: <span id="hud-timer">03:00</span></div>
+                <div class="score">Score: <span id="hud-score">0</span></div>
+            </div>
+            <div class="hud-bottom">
+                <div class="health-bar-container">
+                    <div id="health-bar-fill"></div>
+                    <span class="health-text">HP: <span id="hud-health">100</span></span>
+                </div>
+                <div class="ammo">Weapon: <span id="hud-ammo">-</span></div>
+            </div>
+        </div>
+
+        <!-- Match End Screen -->
+        <div id="end-screen" class="menu-page hidden">
+            <h2 id="end-title">MATCH FINISHED</h2>
+            <div class="end-stats">
+                <p>Winner: <span id="end-winner">-</span></p>
+                <p>Kills: <span id="end-kills">0</span></p>
+                <p>Deaths: <span id="end-deaths">0</span></p>
+                <p>Coins Earned: <span id="end-coins">0</span></p>
+            </div>
+            <div class="menu-buttons">
+                <button id="btn-play-again">PLAY AGAIN</button>
+                <button id="btn-return-home">HOME</button>
+            </div>
+        </div>
+    </div>
+
+    <script type="module" src="/src/main.js"></script>
+</body>
+</html>
