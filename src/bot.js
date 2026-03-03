@@ -16,6 +16,7 @@ export class Bot {
         this.state = 'idle';
         this.target = null;
         this.currentWeapon = null;
+        this.isShielded = false;
         this.cooldown = 0;
         this.recoverTimer = 0;
         this.initMesh();
@@ -111,44 +112,46 @@ export class Bot {
     }
     handleWeaponLogic(delta) {
         if (!this.currentWeapon) return;
-        if (this.currentWeapon.update) this.currentWeapon.update(delta);
-        const nearEnemy = this.game.player && this.mesh.position.distanceTo(this.game.player.mesh.position) < 10;
-        if (this.currentWeapon.name === 'MirrorShield') {
-            if (this.health < 50 && this.cooldown <= 0) {
+        if (this.currentWeapon.update) {
+            this.currentWeapon.update(delta);
+        }
+
+        if (this.cooldown <= 0) {
+            const nearEnemy = this.game.player && this.mesh.position.distanceTo(this.game.player.mesh.position) < 30;
+            
+            if (this.currentWeapon.name === 'Shield' && this.health < 70) {
                 this.useWeapon();
-            }
-        } else if (this.currentWeapon.name === 'SpeedOverdrive') {
-            if (!nearEnemy && this.cooldown <= 0) {
+            } else if (this.currentWeapon.name === 'Speed Boost' && !nearEnemy) {
                 this.useWeapon();
-            }
-        } else {
-            if (nearEnemy && this.cooldown <= 0) {
+            } else if (nearEnemy) {
                 this.useWeapon();
             }
         }
-        if (this.currentWeapon && this.currentWeapon.isFinished && this.currentWeapon.isFinished()) {
-            this.currentWeapon.cleanup && this.currentWeapon.cleanup();
+
+        if (this.currentWeapon && this.currentWeapon.done) {
             this.currentWeapon = null;
         }
     }
     giveWeapon(w) {
-        if (!this.currentWeapon) this.currentWeapon = w;
+        if (!this.currentWeapon) {
+            this.currentWeapon = w;
+            w.player = this; // Ensure the weapon knows its owner
+        }
     }
     useWeapon() {
-        if (!this.currentWeapon) return;
-        this.currentWeapon.use();
-        this.cooldown = 1.5;
-        if (this.currentWeapon.consumesOnUse) {
-            this.currentWeapon.cleanup && this.currentWeapon.cleanup();
-            this.currentWeapon = null;
+        if (this.currentWeapon) {
+            this.currentWeapon.use();
+            this.cooldown = 1.5; 
         }
     }
     takeDamage(amount) {
-        if (this.currentWeapon && this.currentWeapon.modifyIncomingDamage) {
-            amount = this.currentWeapon.modifyIncomingDamage(amount, this);
-        }
+        if (this.isShielded) return;
+
         this.health -= amount;
         if (this.health <= 0) this.die();
+    }
+    applyForce(direction, force) {
+        this.velocity.addScaledVector(direction, force);
     }
     die() {
         this.game.matchKills++;

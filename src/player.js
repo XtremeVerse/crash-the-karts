@@ -16,6 +16,7 @@ export class Player {
         this.friction = 0.95;
         this.turnSpeed = stats.handling;
         this.currentWeapon = null;
+        this.isShielded = false;
         this.steer = 0;
         this.invincibleTimer = 0;
 
@@ -80,19 +81,23 @@ export class Player {
         this.mesh.position.addScaledVector(this.velocity, delta);
 
         if (this.keys['Space']) this.useWeapon();
-        if (this.currentWeapon && this.currentWeapon.update) this.currentWeapon.update(delta);
-        if (this.currentWeapon && this.currentWeapon.isFinished && this.currentWeapon.isFinished()) {
-            this.currentWeapon.cleanup && this.currentWeapon.cleanup();
-            this.currentWeapon = null;
+        
+        if (this.currentWeapon) {
+            if (this.currentWeapon.update) {
+                this.currentWeapon.update(delta);
+            }
+            if (this.currentWeapon.done) {
+                this.currentWeapon = null;
+            }
         }
+
         if (this.invincibleTimer > 0) this.invincibleTimer -= delta;
     }
 
     takeDamage(amount) {
+        if (this.isShielded) return;
         if (this.invincibleTimer > 0) return;
-        if (this.currentWeapon && this.currentWeapon.modifyIncomingDamage) {
-            amount = this.currentWeapon.modifyIncomingDamage(amount, this);
-        }
+
         this.health -= amount;
         if (this.health <= 0) {
             this.die();
@@ -112,12 +117,10 @@ export class Player {
     giveWeapon(w) {
         if (!this.currentWeapon) this.currentWeapon = w;
     }
+
     useWeapon() {
-        if (!this.currentWeapon) return;
-        this.currentWeapon.use();
-        if (this.currentWeapon.consumesOnUse) {
-            this.currentWeapon.cleanup && this.currentWeapon.cleanup();
-            this.currentWeapon = null;
+        if (this.currentWeapon) {
+            this.currentWeapon.use();
         }
     }
 }

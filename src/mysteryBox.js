@@ -1,9 +1,5 @@
 import * as THREE from 'three';
-import { RocketLauncher } from './weapons/rocketLauncher.js';
-import { ProximityMine } from './weapons/proximityMine.js';
-import { RapidBlaster } from './weapons/rapidBlaster.js';
-import { EnergyShield } from './weapons/energyShield.js';
-import { TurboBoost } from './weapons/turboBoost.js';
+import * as Weapons from './weapons/index.js';
 
 export class MysteryBoxManager {
     constructor(game) {
@@ -11,7 +7,7 @@ export class MysteryBoxManager {
         this.boxes = [];
         this.respawnTimer = 0;
         this.lastWeaponName = null;
-        this.pool = ['RocketLauncher', 'ProximityMine', 'RapidBlaster', 'EnergyShield', 'TurboBoost'];
+        this.pool = Object.keys(Weapons);
     }
     reset() {
         this.clear();
@@ -76,12 +72,14 @@ export class MysteryBoxManager {
         }
         const pick = choices[Math.floor(Math.random() * choices.length)];
         this.lastWeaponName = pick;
-        if (pick === 'RocketLauncher') return new RocketLauncher(this.game, owner);
-        if (pick === 'ProximityMine') return new ProximityMine(this.game, owner);
-        if (pick === 'RapidBlaster') return new RapidBlaster(this.game, owner);
-        if (pick === 'EnergyShield') return new EnergyShield(this.game, owner);
-        return new TurboBoost(this.game, owner);
+
+        if (Weapons[pick]) {
+            return new Weapons[pick](owner);
+        }
+        // Fallback to a default weapon if something goes wrong
+        return new Weapons.Rocket(owner);
     }
+
     getNearestBoxPosition(from) {
         if (this.boxes.length === 0) return null;
         let best = null;

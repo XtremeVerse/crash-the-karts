@@ -94,9 +94,13 @@ export class Game {
         this.entities.forEach(e => {
             if (e.mesh) this.scene.remove(e.mesh);
         });
+        this.effects.forEach(e => {
+            if (e.mesh) this.scene.remove(e.mesh);
+        });
         this.entities = [];
         this.bots = [];
         this.player = null;
+        this.effects = [];
         this.mystery.clear();
         this.mapManager.clearNonLights();
     }
@@ -104,13 +108,8 @@ export class Game {
         const mins = Math.floor(this.matchTimeLeft / 60);
         const secs = this.matchTimeLeft % 60;
         const timeStr = `${mins}:${secs.toString().padStart(2, '0')}`;
-        let weaponStr = '-';
-        if (this.player && this.player.currentWeapon) {
-            weaponStr = this.player.currentWeapon.name || '-';
-            if (this.player.currentWeapon.name === 'RapidBlaster' && this.player.currentWeapon.shots != null) {
-                weaponStr = `${weaponStr} (${this.player.currentWeapon.shots})`;
-            }
-        }
+        let weaponStr = this.player?.currentWeapon?.name || '-';
+
         this.ui.updateHUD({
             timer: timeStr,
             score: this.matchScore,
@@ -164,14 +163,20 @@ export class Game {
             this.entities.forEach(entity => entity.update(delta));
             this.collisionSystem.update(this.entities, delta);
             this.mystery.update(delta);
+
             for (let i = this.effects.length - 1; i >= 0; i--) {
-                const e = this.effects[i];
-                if (e.update) e.update(delta);
-                if (e.done) {
-                    if (e.mesh) this.scene.remove(e.mesh);
+                const effect = this.effects[i];
+                if (effect.update) {
+                    effect.update(delta);
+                }
+                if (effect.done) {
+                    if (effect.destroy) {
+                        effect.destroy();
+                    }
                     this.effects.splice(i, 1);
                 }
             }
+
             this.updateCamera();
             this.updateHUD();
         } else {
