@@ -132,24 +132,55 @@ export class Game {
     async showGaragePreview() {
         const canvas = document.getElementById('garage-preview-canvas');
         if (!canvas) return;
-        this._garage = new GaragePreview(canvas);
-        const cars = listCarNames();
-        const chars = listCharacterNames();
-        const chosenCar = cars.includes(this.store.selectedCar) ? this.store.selectedCar : (cars[0] || this.store.selectedCar);
-        const chosenChar = chars.includes(this.store.selectedCharacter) ? this.store.selectedCharacter : (chars[0] || this.store.selectedCharacter);
-        const car = await ModelLoader.loadCar(chosenCar, {
+    
+        if (!this._garage) {
+            this._garage = new GaragePreview(canvas);
+        }
+    
+        // Load all models first
+        const carNames = listCarNames();
+        const charNames = listCharacterNames();
+        
+        const carPromises = carNames.map(name => ModelLoader.loadCar(name, {
             bodyColor: this.store.selectedColor,
             rimColor: this.store.selectedRimColor || 'white',
             neon: !!this.store.neonEnabled
-        });
-        const driver = await ModelLoader.loadCharacter(chosenChar);
-        const group = new THREE.Group();
-        group.add(car);
-        group.add(driver);
-        driver.position.set(0, 0.5, 0);
-        car.position.y = 0.25;
-        this._garage.show(group);
-    }
+        }));
+        const charPromises = charNames.map(name => ModelLoader.loadCharacter(name));
+    
+        const [carModels, charModels] = await Promise.all([
+            Promise.all(carPromises),
+            Promise.all(charPromises)
+        ]);
+    
+        const carModelMap = carNames.reduce((acc, name, i) => ({ ...acc, [name]: carModels[i] }), {});
+        const charModelMap = charNames.reduce((acc, name, i) => ({ ...acc, [name]: charModels[i] }), {});
+    
+        // Function to update the preview
+        const updatePreview = () => {
+            const selectedCarName = this.store.selectedCar;
+            const selectedCharName = this.store.selectedCharacter;
+    
+            const car = carModelMap[selectedCarName];
+            const driver = charModelMap[selectedCharName];
+    
+            if (car && driver) {
+                const group = new THREE.Group();
+                group.add(car);
+                group.add(driver);
+                driver.position.set(0, 0.5, 0);
+                car.position.y = 0.25;
+                this._garage.show(group);
+            }
+        };
+    
+        // Initial preview update
+        updatePreview();
+    
+        // Re-render when selections change
+        // This assumes the UI class will call this method again upon selection change.
+        // A more robust solution might involve an event emitter, but this works for now.
+    }    
     hideGaragePreview() {
         if (this._garage) {
             this._garage.dispose();
