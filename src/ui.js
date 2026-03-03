@@ -1,3 +1,4 @@
+
 export class UI {
     constructor(game) {
         this.game = game;
@@ -10,7 +11,6 @@ export class UI {
             hud: document.getElementById('game-hud'),
             end: document.getElementById('end-screen')
         };
-
         this.initEventListeners();
     }
 
@@ -127,71 +127,119 @@ export class UI {
         document.getElementById('end-coins').textContent = results.coinsEarned;
     }
 
+    setupCarousel(carouselId, items, onSelect, selectedItem) {
+        const container = document.getElementById(carouselId);
+        if (!container) return;
+
+        const track = container.querySelector('.carousel-track');
+        const prevBtn = container.querySelector('.carousel-btn.prev');
+        const nextBtn = container.querySelector('.carousel-btn.next');
+        let currentIndex = 0;
+
+        track.innerHTML = '';
+        items.forEach((item) => {
+            const el = document.createElement('div');
+            el.className = 'carousel-item';
+            if (item === selectedItem) {
+                el.classList.add('selected');
+                currentIndex = items.indexOf(item);
+            }
+            // For now, we use text. In the future, we can generate thumbnails.
+            el.innerHTML = `<span>${item}</span>`;
+            el.addEventListener('click', () => {
+                onSelect(item);
+                track.querySelector('.selected')?.classList.remove('selected');
+                el.classList.add('selected');
+            });
+            track.appendChild(el);
+        });
+
+        const itemWidth = 120 + 15; // item width + margin
+        const trackWidth = items.length * itemWidth;
+        const containerWidth = container.offsetWidth;
+
+        const updatePosition = () => {
+            let newPos = -currentIndex * itemWidth;
+            // Center the selected item
+            newPos += (containerWidth / 2) - (itemWidth / 2);
+            // Clamp position to not show empty space
+            const maxPos = 0;
+            const minPos = -(trackWidth - containerWidth);
+            track.style.transform = `translateX(${Math.max(minPos, Math.min(maxPos, newPos))}px)`;
+        };
+
+        prevBtn.addEventListener('click', () => {
+            currentIndex = Math.max(0, currentIndex - 1);
+            onSelect(items[currentIndex]);
+            track.querySelector('.selected')?.classList.remove('selected');
+            track.children[currentIndex].classList.add('selected');
+            updatePosition();
+        });
+
+        nextBtn.addEventListener('click', () => {
+            currentIndex = Math.min(items.length - 1, currentIndex + 1);
+            onSelect(items[currentIndex]);
+            track.querySelector('.selected')?.classList.remove('selected');
+            track.children[currentIndex].classList.add('selected');
+            updatePosition();
+        });
+
+        updatePosition();
+    }
+
+
     renderGarage() {
-        const carContainer = document.getElementById('car-selector');
-        const charContainer = document.getElementById('character-selector');
-        const bodyRow = document.getElementById('body-color-selector');
-        const rimRow = document.getElementById('rim-color-selector');
+        const bodyColorContainer = document.getElementById('body-color-selector');
+        const rimColorContainer = document.getElementById('rim-color-selector');
         const neonToggle = document.getElementById('neon-toggle');
-        if (!carContainer || !charContainer) return;
-        carContainer.innerHTML = '';
-        charContainer.innerHTML = '';
-        if (bodyRow) bodyRow.innerHTML = '';
-        if (rimRow) rimRow.innerHTML = '';
-        // Discover cars and characters dynamically from placeholder folders
+
         import('./assetsIndex.js').then(mod => {
             const cars = mod.listCarNames();
             const chars = mod.listCharacterNames();
-            cars.forEach(c => {
-            const btn = document.createElement('button');
-            btn.textContent = c;
-            btn.addEventListener('click', () => {
-                this.game.store.selectCar(c);
+
+            this.setupCarousel('car-carousel', cars, (carName) => {
+                this.game.store.selectCar(carName);
                 this.updateStatsDisplay();
-                this.pendingUnlockCar = null;
-                const unlockBtn = document.getElementById('btn-unlock-car');
-                if (unlockBtn) unlockBtn.classList.add('hidden');
                 this.game.showGaragePreview();
-            });
-            carContainer.appendChild(btn);
-            });
-            chars.forEach(ch => {
-            const btn = document.createElement('button');
-            btn.textContent = ch;
-            btn.addEventListener('click', () => {
-                this.game.store.selectCharacter(ch);
+            }, this.game.store.selectedCar);
+
+            this.setupCarousel('character-carousel', chars, (charName) => {
+                this.game.store.selectCharacter(charName);
                 this.game.showGaragePreview();
-            });
-            charContainer.appendChild(btn);
-            });
+            }, this.game.store.selectedCharacter);
         });
-        const colors = ['red','blue','green','yellow','white','black','purple','orange','cyan','magenta'];
-        if (bodyRow) {
-            colors.forEach(col => {
+
+        const colors = ['#ff0000', '#0000ff', '#00ff00', '#ffff00', '#ffffff', '#000000', '#800080', '#ffa500', '#00ffff', '#ff00ff', '#ffc0cb', '#008080'];
+
+        const createColorSwatches = (container, colorList, selectedColor, onSelect) => {
+            if (!container) return;
+            container.innerHTML = '';
+            colorList.forEach(col => {
                 const sw = document.createElement('div');
-                sw.className = 'swatch' + (this.game.store.selectedColor === col ? ' selected' : '');
-                sw.style.background = col;
+                sw.className = 'swatch';
+                if (selectedColor === col) {
+                    sw.classList.add('selected');
+                }
+                sw.style.backgroundColor = col;
                 sw.addEventListener('click', () => {
-                    this.game.store.setSelectedColor(col);
-                    this.renderGarage();
+                    onSelect(col);
+                    container.querySelector('.swatch.selected')?.classList.remove('selected');
+                    sw.classList.add('selected');
                     this.game.showGaragePreview();
                 });
-                bodyRow.appendChild(sw);
+                container.appendChild(sw);
             });
-        }
-        if (rimRow) {
-            colors.forEach(col => {
-                const sw = document.createElement('div');
-                sw.className = 'swatch' + (this.game.store.selectedRimColor === col ? ' selected' : '');
-                sw.style.background = col;
-                sw.addEventListener('click', () => {
-                    this.game.store.setSelectedRimColor(col);
-                    this.renderGarage();
-                    this.game.showGaragePreview();
-                });
-                rimRow.appendChild(sw);
-            });
-        }
+        };
+
+        createColorSwatches(bodyColorContainer, colors, this.game.store.selectedColor, (color) => {
+            this.game.store.setSelectedColor(color);
+        });
+
+        createColorSwatches(rimColorContainer, colors, this.game.store.selectedRimColor, (color) => {
+            this.game.store.setSelectedRimColor(color);
+        });
+
+
         if (neonToggle) {
             neonToggle.checked = !!this.game.store.neonEnabled;
             neonToggle.onchange = () => {
@@ -201,6 +249,7 @@ export class UI {
         }
         this.updateStatsDisplay();
     }
+
     updateStatsDisplay() {
         const s = this.game.store.getCarStats();
         document.getElementById('stat-speed').textContent = s.speed;

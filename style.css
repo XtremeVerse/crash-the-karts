@@ -94,18 +94,149 @@ button:active {
 /* Garage Styles */
 .garage-content {
     display: flex;
-    gap: 3rem;
-    align-items: center;
-    padding: 2rem;
+    width: 100%;
+    height: 100%;
+}
+
+.garage-left {
+    flex: 3;
+    position: relative;
+    background: radial-gradient(circle at 50% 50%, #2a2a2a, #111 70%);
 }
 
 .kart-preview-container {
-    width: 70vw;
-    height: 60vh;
-    background: radial-gradient(circle at 30% 30%, #1c1c1c, #111 60%);
-    border: 2px solid #444;
+    width: 100%;
+    height: 100%;
+}
+
+.garage-right {
+    flex: 1;
+    padding: 2rem;
+    background: #1a1a1a;
+    display: flex;
+    flex-direction: column;
+    overflow-y: auto;
+}
+
+.selector-carousel {
+    margin-bottom: 2rem;
+}
+
+.selector-carousel h3 {
+    margin-top: 0;
+    color: #ffcc00;
+}
+
+.carousel-track-container {
+    position: relative;
+    overflow: hidden;
+}
+
+.carousel-track {
+    display: flex;
+    transition: transform 0.3s ease-in-out;
+}
+
+.carousel-item {
+    flex: 0 0 120px;
+    margin-right: 15px;
+    text-align: center;
+    cursor: pointer;
+}
+
+.carousel-item img {
+    width: 100px;
+    height: 100px;
+    background: #333;
     border-radius: 10px;
-    box-shadow: 0 8px 30px rgba(0,0,0,0.6);
+    border: 3px solid transparent;
+    object-fit: cover;
+}
+
+.carousel-item.selected img {
+    border-color: #ffcc00;
+}
+
+.carousel-item span {
+    display: block;
+    margin-top: 0.5rem;
+    font-size: 0.9rem;
+}
+
+.carousel-btn {
+    position: absolute;
+    top: 50%;
+    transform: translateY(-50%);
+    background: rgba(0,0,0,0.5);
+    color: white;
+    border: none;
+    font-size: 1.5rem;
+    cursor: pointer;
+    padding: 0.5rem;
+    z-index: 1;
+}
+
+.carousel-btn.prev {
+    left: 0;
+}
+
+.carousel-btn.next {
+    right: 0;
+}
+
+.customization-section {
+    margin-bottom: 2rem;
+}
+
+.customization-section h3 {
+    color: #ffcc00;
+}
+
+.color-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(30px, 1fr));
+    gap: 10px;
+}
+
+.swatch {
+    width: 30px;
+    height: 30px;
+    border-radius: 50%;
+    cursor: pointer;
+    border: 2px solid #555;
+    transition: transform 0.2s;
+}
+
+.swatch:hover {
+    transform: scale(1.1);
+}
+
+.swatch.selected {
+    border-color: #ffcc00;
+}
+
+.toggle-switch {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+
+#stats-display {
+    margin-top: auto;
+    background: #222;
+    padding: 1rem;
+    border-radius: 5px;
+}
+
+#stats-display p {
+    margin: 0.5rem 0;
+    display: flex;
+    justify-content: space-between;
+}
+
+#stats-display span {
+    font-weight: bold;
+    color: #ffcc00;
 }
 
 #garage-preview-canvas {
